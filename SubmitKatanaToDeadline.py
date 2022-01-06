@@ -472,7 +472,7 @@ def WriteJobFilesAndSubmit( gui, scene, submitScene, renderNode, currJob=-1, dep
             activeRange = framSetting.getChild("activeFrameRange")
             start = activeRange.getChild("start")
             end = activeRange.getChild("end")
-            frameRange = "%s-%s" %(start.getValue(0), end.getValue(0))
+            frameRange = "%d-%d" %(start.getValue(0), end.getValue(0))
             fileHandle.write( "Frames=%s\n" % frameRange )
         else:
             fileHandle.write( "Frames=%s\n" % gui.frameRangeWidget.text() )
