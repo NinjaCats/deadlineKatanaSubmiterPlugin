@@ -396,7 +396,7 @@ def SubmitPressed( gui ):
         while not done:
             if RenderNodeReady( items[currNode], nodeToID ):
                 dependentIDs = GetDependentIDString(items[currNode], nodeToID)
-                currResult = WriteJobFilesAndSubmit(gui, scene, submitScene, items[currNode], currJob, dependentIDs, numJobs)
+                currResult = WriteJobFilesAndSubmit(gui, scene, submitScene, items[currNode], currJob, dependentIDs, numJobs, framSettingOn=1)
                 currJob += 1
                 nodeToID[items[currNode].getName()] = GetJobIDFromJobResults(currResult)
 
@@ -417,7 +417,7 @@ def SubmitPressed( gui ):
 
     QMessageBox.information( gui, "Submission Results", resultOutput)
 
-def WriteJobFilesAndSubmit( gui, scene, submitScene, renderNode, currJob=-1, dependentIDs="", totalJobs=1 ):
+def WriteJobFilesAndSubmit( gui, scene, submitScene, renderNode, currJob=-1, dependentIDs="", totalJobs=1 , framSettingOn = 0):
     global submissionInfo
 
     deadlineHome = submissionInfo[ "UserHomeDir" ].strip()
@@ -467,7 +467,15 @@ def WriteJobFilesAndSubmit( gui, scene, submitScene, renderNode, currJob=-1, dep
             fileHandle.write( "InitialStatus=Suspended\n" )
 
         fileHandle.write( "ChunkSize=%s\n" % str(gui.framesPerTaskWidget.value()) )
-        fileHandle.write( "Frames=%s\n" % gui.frameRangeWidget.text() )
+        if framSettingOn:
+            framSetting = renderNode.getParameter("farmSettings")
+            activeRange = framSetting.getChild("activeFrameRange")
+            start = activeRange.getChild("start")
+            end = activeRange.getChild("end")
+            frameRange = "%s-%s" %(start.getValue(0), end.getValue(0))
+            fileHandle.write( "Frames=%s\n" % frameRange )
+        else:
+            fileHandle.write( "Frames=%s\n" % gui.frameRangeWidget.text() )
 
         if totalJobs > 1:
             fileHandle.write( "BatchName=%s\n" % gui.jobNameWidget.text() )
